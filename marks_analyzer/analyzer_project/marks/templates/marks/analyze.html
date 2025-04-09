@@ -1,0 +1,105 @@
+{% extends 'marks/base.html' %}
+
+{% block title %}Analysis - Marks Analyzer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Top Students -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Top 3 Students</h3>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for student in top_students %}
+                    <div class="list-group-item">
+                        <h5 class="mb-1">{{ student.name }} ({{ student.roll_no }})</h5>
+                        <p class="mb-1">Total Marks: {{ student.total_marks|floatformat:2 }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item">No student data available</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Averages -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Class Averages</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="averagesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weakest Subjects -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Student Weakest Subjects</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Weakest Subject</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in student_weakest %}
+                            <tr>
+                                <td>{{ item.student.name }} ({{ item.student.roll_no }})</td>
+                                <td>{{ item.subject }}</td>
+                                <td>{{ item.score|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3">No data available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('averagesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_subjects|safe }},
+            datasets: [{
+                label: 'Class Average',
+                data: {{ chart_averages|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 
